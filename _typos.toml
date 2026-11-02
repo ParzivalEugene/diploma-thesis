@@ -1,0 +1,5 @@
+[files]
+extend-exclude = ["docs/research/**", "docs/requirements/**", "*.pdf"]
+
+[default.extend-words]
+gost = "gost"

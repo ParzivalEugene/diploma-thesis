@@ -1,0 +1,8 @@
+target/
+report/out/
+slides/out/
+data/
+.DS_Store
+.vale/styles/.vale-config/
+report/fixtures/out/
+mutants.out*/

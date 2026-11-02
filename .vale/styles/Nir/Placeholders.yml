@@ -1,0 +1,10 @@
+extends: existence
+message: "Заглушка или чат-артефакт: '%s'"
+level: error
+ignorecase: true
+tokens:
+  - 'TODO'
+  - 'lorem'
+  - '\[вставить'
+  - 'конечно!'
+  - 'надеюсь, это'

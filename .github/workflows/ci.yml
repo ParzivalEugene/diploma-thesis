@@ -1,0 +1,57 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_report:
+        description: Полная проверка отчёта на macOS перед сдачей
+        type: boolean
+        default: false
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.99.1
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just,cargo-nextest,typos
+      - run: just check
+
+  report-compiles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: "0.15.1"
+      - run: typst compile --root . report/main.typ report/main.pdf
+
+  dependencies:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories sources licenses
+
+  report-format:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_report
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.99.1
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: "0.15.1"
+      - run: brew install poppler just vale
+      - run: just report-check
